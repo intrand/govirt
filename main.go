@@ -2,11 +2,21 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	version = "" // to be filled in by goreleaser
+	commit  = "" // to be filled in by goreleaser
+	date    = "" // to be filled in by goreleaser
+	builtBy = "" // to be filled in by goreleaser
+	cmdname = filepath.Base(os.Args[0])
 )
 
 func main() {
@@ -14,6 +24,23 @@ func main() {
 	args := kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	switch args {
+
+	case cmd_version.FullCommand():
+		fmt.Println(
+			"{\"version\":\"" + version + "\",\"commit\":\"" + commit + "\",\"date\":\"" + date + "\",\"built_by\":\"" + builtBy + "\"}")
+
+	case cmd_update.FullCommand():
+		// Handle updating to a new version
+		log.Print("Attempting update of " + cmdname + "...")
+		update_result, err := doSelfUpdate()
+		if err != nil {
+			log.Println("Couldn't update at this time. Please try again later. Exiting.")
+			os.Exit(1)
+		}
+		if update_result {
+			log.Println("Please run " + cmdname + " again.")
+			os.Exit(0)
+		}
 
 	// vm create
 	case cmd_vm_create.FullCommand():

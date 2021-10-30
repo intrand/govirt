@@ -11,6 +11,9 @@ var (
 	cmd_password = app.Flag("password", "Password").Envar("govirt_password").Required().String()
 	cmd_url      = app.Flag("url", "URL to API (eg, https://1.2.3.4/ovirt-engine/api)").Envar("govirt_url").Required().String()
 
+	cmd_version = app.Command("version", "prints version and exits")
+	cmd_update  = app.Command("update", "updates to latest version and exits")
+
 	// vm
 	cmd_vm = app.Command("vm", "virtual machines")
 

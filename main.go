@@ -75,6 +75,47 @@ func main() {
 
 		log.Println("Successfully sent the request.")
 
+	// vm get
+	case cmd_vm_get.FullCommand():
+		// get connection
+		conn, err := connect()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// vm
+		vm, err := getVm(conn, *cmd_vm_get_name)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		vmId, ok := vm.Id()
+		if !ok {
+			log.Fatalln("couldn't get virtual machine id")
+		}
+
+		vmName, ok := vm.Name()
+		if !ok {
+			log.Fatalln("couldn't get virtual machine name")
+		}
+
+		vmState, ok := vm.Status()
+		if !ok {
+			log.Fatalln("couldn't get virtual machine status")
+		}
+
+		vmDescription, ok := vm.Description()
+		if !ok {
+			log.Fatalln("couldn't get virtual machine description")
+		}
+
+		fmt.Print(
+			"name: " + vmName + "\n" +
+				"\tid: " + vmId + "\n" +
+				"\tdesc: " + vmDescription + "\n" +
+				"\tstate: " + string(vmState) + "\n",
+		)
+
 	// vm rm
 	case cmd_vm_rm.FullCommand():
 		// get connection
@@ -84,7 +125,7 @@ func main() {
 		}
 
 		// vm
-		vm, err := getVm(conn, "test")
+		vm, err := getVm(conn, *cmd_vm_rm_name)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -97,8 +138,75 @@ func main() {
 			log.Fatalln("Not approved. You MUST specify --yes as a safety precaution. Do not script this! You've been warned! Exiting.")
 		}
 
+		// shutdown
+		err = shutdownVm(conn, vm, true) // force off
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		// delete
 		err = deleteVm(conn, vm)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		log.Println("Successfully sent the request.")
+
+	// vm start
+	case cmd_vm_start.FullCommand():
+		// if *cmd_vm_start_init {
+		// 	if len(*cmd_vm_start_ip) < 1 {
+		// 		log.Fatalln("You MUST specify --ip <address> when starting a VM with the --init argument.")
+		// 	}
+		// }
+		// get connection
+		conn, err := connect()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// vm
+		vm, err := getVm(conn, *cmd_vm_start_name)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// warn
+		if *cmd_vm_start_init {
+			log.Println("Requesting to start virtual machine " + *cmd_vm_start_name + " with cloud-init config: " + *cmd_vm_start_script)
+		} else {
+			log.Println("Requesting to start virtual machine " + *cmd_vm_start_name)
+		}
+
+		err = startVm(conn, vm, *cmd_vm_start_init)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		log.Println("Successfully sent the request.")
+		// } else {
+		// 	log.Fatalln("Couldn't start virtual machine. Look above for errors.")
+		// }
+
+	// vm stop
+	case cmd_vm_stop.FullCommand():
+		// get connection
+		conn, err := connect()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// vm
+		vm, err := getVm(conn, *cmd_vm_stop_name)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// warn
+		log.Println("Requesting to stop virtual machine " + *cmd_vm_stop_name)
+
+		// shutdown
+		err = shutdownVm(conn, vm, *cmd_vm_stop_force)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -185,26 +293,4 @@ func main() {
 		}
 		tableOut(outputDomains)
 	}
-
-	// // Get the reference to the "clusters" service
-	// clustersService := conn.SystemService().ClustersService()
-
-	// // Use the "list" method of the "clusters" service to list all the clusters of the system
-	// clustersResponse, err := clustersService.List().Send()
-	// if err != nil {
-	// 	fmt.Printf("Failed to get cluster list, reason: %v\n", err)
-	// 	return
-	// }
-
-	// if clusters, ok := clustersResponse.Clusters(); ok {
-	// 	// Print the datacenter names and identifiers
-	// 	for _, cluster := range clusters.Slice() {
-	// 		if clusterName, ok := cluster.Name(); ok {
-	// 			fmt.Printf("Cluster name: %v\n", clusterName)
-	// 		}
-	// 		if clusterId, ok := cluster.Id(); ok {
-	// 			fmt.Printf("Cluster id: %v\n", clusterId)
-	// 		}
-	// 	}
-	// }
 }

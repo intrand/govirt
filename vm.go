@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"io/ioutil"
 
 	ovirt "github.com/ovirt/go-ovirt"
 )
@@ -67,7 +69,27 @@ func createVmFromTemplate(conn *ovirt.Connection, template ovirt.Template, domai
 		return err
 	}
 
-	newVm, err := ovirt.NewVmBuilder().Name(vmName).Cluster(newCluster).Template(newTemplate).DiskAttachmentsOfAny(newAttachment).Build()
+	mem := int64(*cmd_vm_create_memory * 1024 * 1024 * 1024)
+	fmt.Println(mem)
+
+	topol, err := ovirt.NewCpuTopologyBuilder().Cores(1).Sockets(*cmd_vm_create_cpu).Build()
+	if err != nil {
+		return err
+	}
+
+	cpuBuild, err := ovirt.NewCpuBuilder().Topology(topol).Build()
+	if err != nil {
+		return err
+	}
+
+	newVm, err := ovirt.NewVmBuilder().
+		Name(vmName).
+		Cluster(newCluster).
+		Template(newTemplate).
+		DiskAttachmentsOfAny(newAttachment).
+		Memory(mem).
+		Cpu(cpuBuild).
+		Build()
 	if err != nil {
 		return err
 	}
@@ -114,6 +136,107 @@ func deleteVm(conn *ovirt.Connection, vm ovirt.Vm) error {
 	_, err := vmService.Remove().Send()
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// reads cloud-init YAML from disk
+func getCloudInitScript(scriptFile string) (string, error) {
+	// read file to mem
+	yamlFile, err := ioutil.ReadFile(scriptFile)
+	if err == nil {
+		return string(yamlFile), nil
+	} else {
+		return "", err
+	}
+}
+
+// rebuilds VM + cloud-init
+func buildVmInit(vmName string) (*ovirt.Initialization, error) {
+	initBuilder, err := ovirt.NewInitializationBuilder().Build()
+	if err != nil {
+		return nil, err
+	}
+
+	script, err := getCloudInitScript(*cmd_vm_start_script)
+	if err != nil {
+		return initBuilder, err
+	}
+
+	initBuilder, err = ovirt.NewInitializationBuilder().
+		HostName(vmName).
+		CustomScript(script).
+		Build()
+	if err != nil {
+		return initBuilder, err
+	}
+
+	return initBuilder, nil
+}
+
+// starts VM, conditionally with/out cloud-init config added to the VM config
+func startVm(conn *ovirt.Connection, vm ovirt.Vm, init bool) error {
+	vmsService := conn.SystemService().VmsService()
+
+	vmId, ok := vm.Id()
+	if !ok {
+		return errors.New("couldn't get virtual machine id")
+	}
+
+	vmName, ok := vm.Name()
+	if !ok {
+		return errors.New("couldn't get virtual machine name")
+	}
+
+	vmService := vmsService.VmService(vmId)
+
+	if init {
+		initConf, err := buildVmInit(vmName)
+		if err != nil {
+			return err
+		}
+
+		vmObj, err := ovirt.NewVmBuilder().Initialization(initConf).Build()
+		if err != nil {
+			return err
+		}
+
+		_, err = vmService.Start().UseCloudInit(true).Vm(vmObj).Send()
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := vmService.Start().Send()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// shuts the VM down, conditionally gracefully/forcefully
+func shutdownVm(conn *ovirt.Connection, vm ovirt.Vm, force bool) error {
+	vmsService := conn.SystemService().VmsService()
+
+	vmId, ok := vm.Id()
+	if !ok {
+		return errors.New("couldn't get virtual machine id")
+	}
+
+	vmService := vmsService.VmService(vmId)
+
+	if force { // stop (force off)
+		_, err := vmService.Stop().Send()
+		if err != nil {
+			return err
+		}
+	} else { // shutdown (graceful exit)
+		_, err := vmService.Shutdown().Send()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -1,2 +1,7 @@
 /*.env
 /govirt*
+/dist
+/scripts/*
+/script.yml
+/cloudinit.yml
+/cloud-init-script.yml

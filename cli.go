@@ -23,14 +23,34 @@ var (
 	cmd_vm_create_template         = cmd_vm_create.Flag("template", "template from which to create vm").Envar("govirt_vm_create_template").Required().String()
 	cmd_vm_create_template_version = cmd_vm_create.Flag("template-version", "version of template from which to create vm").Envar("govirt_vm_create_template_version").Required().Int64()
 	cmd_vm_create_datastore        = cmd_vm_create.Flag("datastore", "storage domain in which to create vm").Envar("govirt_vm_create_datastore").Required().String()
+	cmd_vm_create_cpu              = cmd_vm_create.Flag("cpu", "cpu socket count (1 core/socket)").Envar("govirt_vm_create_cpu").Default("1").Int64()
+	cmd_vm_create_memory           = cmd_vm_create.Flag("memory", "memory (RAM) in GB").Envar("govirt_vm_create_memory").Default("1").Int64()
+
+	cmd_vm_get      = cmd_vm.Command("get", "get details of a vm")
+	cmd_vm_get_name = cmd_vm_get.Flag("name", "name of vm to get info of").Envar("govirt_vm_get_name").Required().String()
 
 	cmd_vm_rm      = cmd_vm.Command("rm", "remove a vm")
 	cmd_vm_rm_name = cmd_vm_rm.Flag("name", "name of vm to remove").Envar("govirt_vm_rm_name").Required().String()
 	cmd_vm_rm_yes  = cmd_vm_rm.Flag("yes", "remove vm from ovirt").Envar("govirt_vm_rm_yes").Default("false").Bool()
+
+	cmd_vm_start      = cmd_vm.Command("start", "start virtual machine with cloud-init")
+	cmd_vm_start_name = cmd_vm_start.Flag("name", "name of vm to start").Envar("govirt_vm_start_name").Required().String()
+	cmd_vm_start_init = cmd_vm_start.Flag("init", "start with cloud-init enabled").Envar("govirt_vm_start_init").Default("false").Bool()
+	// cmd_vm_start_cidr          = cmd_vm_start.Flag("cidr", "CIDR notation IP address to give vm on startup (eg, 192.168.0.99/24)").Envar("govirt_vm_start_cidr").String()
+	// cmd_vm_start_gateway       = cmd_vm_start.Flag("gateway", "IP address to give vm on startup (eg, 192.168.0.1)").Envar("govirt_vm_start_gateway").String()
+	// cmd_vm_start_dns_addresses = cmd_vm_start.Flag("dns-addresses", "comma-separated list of IP addresses to give vm on startup (eg, 1.1.1.1,1.0.0.1,8.8.8.8)").Envar("govirt_vm_start_dns_addresses").String()
+	cmd_vm_start_script = cmd_vm_start.Flag("script", "/path/to/cloud-init-script.yml (eg, /etc/govirt/cloud-init-script.yml)").Envar("govirt_vm_start_script").Default("cloud-init-script.yml").String()
+
+	cmd_vm_stop       = cmd_vm.Command("stop", "shutdown virtual machine gracefully")
+	cmd_vm_stop_name  = cmd_vm_stop.Flag("name", "name of vm to stop").Envar("govirt_vm_stop_name").Required().String()
+	cmd_vm_stop_force = cmd_vm_stop.Flag("force", "don't wait for shutdown; pull virtual plug").Envar("govirt_vm_stop_force").Default("false").Bool()
 
 	cmd_vm_summary = cmd_vm.Command("summary", "output summary of virtual machines")
 
 	// storage
 	cmd_storage         = app.Command("storage", "storage domains")
 	cmd_storage_summary = cmd_storage.Command("summary", "output summary of storage")
+
+	// testing
+	// cmd_test = app.Command("test", "I wouldn't run this if I were you. You've been warned. No, really, it might delete your entire datacenter without prompting.")
 )

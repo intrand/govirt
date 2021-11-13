@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 
 	ovirt "github.com/ovirt/go-ovirt"
@@ -69,8 +68,7 @@ func createVmFromTemplate(conn *ovirt.Connection, template ovirt.Template, domai
 		return err
 	}
 
-	mem := int64(*cmd_vm_create_memory * 1024 * 1024 * 1024)
-	fmt.Println(mem)
+	mem := int64(*cmd_vm_create_memory * 1073741824) // input * 1024^3
 
 	topol, err := ovirt.NewCpuTopologyBuilder().Cores(1).Sockets(*cmd_vm_create_cpu).Build()
 	if err != nil {

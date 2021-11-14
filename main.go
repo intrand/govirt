@@ -25,10 +25,12 @@ func main() {
 
 	switch args {
 
+	// version
 	case cmd_version.FullCommand():
 		fmt.Println(
 			"{\"version\":\"" + version + "\",\"commit\":\"" + commit + "\",\"date\":\"" + date + "\",\"built_by\":\"" + builtBy + "\"}")
 
+	// update
 	case cmd_update.FullCommand():
 		// Handle updating to a new version
 		log.Print("Attempting update of " + cmdname + "...")
@@ -41,6 +43,14 @@ func main() {
 			log.Println("Please run " + cmdname + " again.")
 			os.Exit(0)
 		}
+
+	// cloud-init create
+	case cmd_cloud_init_create.FullCommand():
+		config, err := intakeCloudInitInput()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		genCloudInitScript(config)
 
 	// vm create
 	case cmd_vm_create.FullCommand():

@@ -37,7 +37,7 @@ I highly recommend starting with `--help` before following the example below. Th
 
 1. create new VMs:
 
-    1. clone the VM from template:
+    1. clone each VM from a sealed template:
 
         ```sh
         for i in {0..4}; do \
@@ -48,51 +48,17 @@ I highly recommend starting with `--help` before following the example below. Th
             done;
         ```
 
-    2. prepare cloud-init script for the new VM to run at bootup:
+    2. prepare cloud-init scripts for each new VM to run at bootup:
 
-        ```yaml
-        fqdn: k3s0.domain
+        ```sh
+        mkdir -p "${HOME}/cloud-init" && \
+        for i in {0..4}; do \
+        govirt cloud-init create \
+            --fqdn "k3s${i}.lan" \
+            --ssh-key "ssh-rsa some_ssh_public_key with_comment_if_you_like" > "${HOME}/cloud-init/k3s${i}.yml"; \
+        done;
 
-        write_files:
-        - path: /etc/cloud/cloud.cfg.d/99-custom-networking.cfg
-        permissions: '0644'
-        content: |
-            network: {config: disabled}
-        - path: /etc/netplan/config.yaml
-        permissions: '0644'
-        content: |
-          network:
-            version: 2
-            renderer: networkd
-            ethernets:
-              enp1s0:
-                optional: yes
-                dhcp4: no
-                dhcp6: no
-                addresses:
-                  - 192.168.0.200/24
-                gateway4: 192.168.0.1
-                nameservers:
-                  addresses:
-                    - 1.1.1.1
-                    - 1.0.0.1
-                    - 8.8.8.8
-
-        runcmd:
-        - date > /opt/.creation
-        - rm /etc/netplan/50-cloud-init.yaml
-        - netplan generate
-        - netplan apply
-        - dpkg-reconfigure openssh-server
-
-        users:
-        - default
-        - name: root
-        ssh_authorized_keys:
-        - "entire public key string goes here exactly as it would appear in authorized_keys"
-        ```
-
-    3. start VM with cloud-init script:
+    3. start VMs with cloud-init script:
 
         ```sh
         for i in {0..4}; do \

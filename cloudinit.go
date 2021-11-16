@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -67,7 +66,7 @@ func intakeCloudInitInput() (cloudInit, error) {
 	}
 
 	if haveCidr && !haveGateway4 {
-		fmt.Println("network from CIDR, but no gateway; guessing .1")
+		// fmt.Println("network from CIDR, but no gateway; guessing .1")
 		guessedGateway := incrementIP(conf.Network)
 		conf.Gateway4 = guessedGateway
 	}

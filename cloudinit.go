@@ -84,8 +84,7 @@ func genCloudInitScript(config cloudInit) error {
 	} else {
 		config.Domain = strings.Join(splitFQDN[1:], ".")
 	}
-	templt := "---\n" +
-		"fqdn: {{ .FQDN }}\n" +
+	templt := "fqdn: {{ .FQDN }}\n" +
 		"write_files:\n" +
 		"- path: /etc/cloud/cloud.cfg.d/99-custom-networking.cfg\n" +
 		"  permissions: '0644'\n" +

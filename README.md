@@ -1,3 +1,6 @@
+# ***RedHat has abandoned RHV and thusly oVirt is likely dead. This project will not be maintained going forward :(***
+
+
 # About
 govirt allows you to perform basic tasks in oVirt on the command line.
 

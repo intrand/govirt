@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"io/ioutil"
+	"os"
 
 	ovirt "github.com/ovirt/go-ovirt"
 )
@@ -142,7 +142,7 @@ func deleteVm(conn *ovirt.Connection, vm ovirt.Vm) error {
 // reads cloud-init YAML from disk
 func getCloudInitScript(scriptFile string) (string, error) {
 	// read file to mem
-	yamlFile, err := ioutil.ReadFile(scriptFile)
+	yamlFile, err := os.ReadFile(scriptFile)
 	if err == nil {
 		return string(yamlFile), nil
 	} else {

@@ -17,14 +17,15 @@ var (
 	// init
 	cmd_cloud_init             = app.Command("cloud-init", " ")
 	cmd_cloud_init_create      = cmd_cloud_init.Command("create", "generate cloud-init configuration")
-	cmd_cloud_init_create_fqdn = cmd_cloud_init_create.Flag("fqdn", "fqdn").Envar("govirt_cloud_init_create_fqdn").Required().String()
+	cmd_cloud_init_create_fqdn = cmd_cloud_init_create.Flag("fqdn", "fqdn").Short('f').Envar("govirt_cloud_init_create_fqdn").Required().String()
 	// cmd_cloud_init_create_output        = cmd_cloud_init_create.Flag("output", "output file").Envar("govirt_cloud_init_create_output").Envar("govirt_cloud_init_create_output").Default("script.yml").String()
-	cmd_cloud_init_create_cidr          = cmd_cloud_init_create.Flag("cidr", "IPv4 address in CIDR notation to give vm on startup (eg, 192.168.0.99/24)").Envar("govirt_cloud_init_create_cidr").String()
-	cmd_cloud_init_create_gateway4      = cmd_cloud_init_create.Flag("gateway4", "IPv4 address to give vm on startup (eg, 192.168.0.1)").Envar("govirt_cloud_init_create_gateway").String()
-	cmd_cloud_init_create_dns_addresses = cmd_cloud_init_create.Flag("dns-addresses", "comma-separated list of IPv4 addresses to give vm on startup").Envar("govirt_cloud_init_create_dns_addresses").Default("1.1.1.1,1.0.0.1,8.8.8.8").String()
-	cmd_cloud_init_create_user          = cmd_cloud_init_create.Flag("user", "user to customize").Envar("govirt_cloud_init_create_user").Default("root").String()
-	cmd_cloud_init_create_ssh_key       = cmd_cloud_init_create.Flag("ssh-key", "public SSH key to go to the specified user").Envar("govirt_cloud_init_create_ssh_key").String()
-	cmd_cloud_init_create_nic           = cmd_cloud_init_create.Flag("nic", "name of NIC to configure").Envar("govirt_cloud_init_create_nic").Default("enp1s0").String()
+	cmd_cloud_init_create_cidr          = cmd_cloud_init_create.Flag("cidr", "IPv4 address in CIDR notation to give vm on startup (eg, 192.168.0.99/24)").Short('c').Envar("govirt_cloud_init_create_cidr").String()
+	cmd_cloud_init_create_gateway4      = cmd_cloud_init_create.Flag("gateway4", "IPv4 address to give vm on startup (eg, 192.168.0.1)").Short('g').Envar("govirt_cloud_init_create_gateway").String()
+	cmd_cloud_init_create_dns_addresses = cmd_cloud_init_create.Flag("dns-addresses", "comma-separated list of IPv4 addresses to give vm on startup").Short('d').Envar("govirt_cloud_init_create_dns_addresses").Default("1.1.1.1,1.0.0.1,8.8.8.8").String()
+	cmd_cloud_init_create_user          = cmd_cloud_init_create.Flag("user", "user to customize").Short('u').Envar("govirt_cloud_init_create_user").Default("root").String()
+	cmd_cloud_init_create_ssh_key       = cmd_cloud_init_create.Flag("ssh-key", "public SSH key to go to the specified user").Short('s').Envar("govirt_cloud_init_create_ssh_key").String()
+	cmd_cloud_init_create_nic           = cmd_cloud_init_create.Flag("nic", "name of NIC to configure").Short('n').Envar("govirt_cloud_init_create_nic").Default("enp1s0").String()
+	cmd_cloud_init_create_output        = cmd_cloud_init_create.Flag("output", "path to output file").Short('o').Envar("govirt_cloud_init_create_output").String()
 
 	// vm
 	cmd_vm = app.Command("vm", "virtual machines")

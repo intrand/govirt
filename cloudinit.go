@@ -164,7 +164,7 @@ func genCloudInitScript(config cloudInit) error {
 	}
 	templt = templt +
 		"runcmd:\n" +
-		"  - date > /opt/.creation\n" +
+		"  - date +%Y-%m-%d_%H:%M:%S_%Z > /opt/.creation\n" +
 		"  - netplan apply\n" +
 		"users:\n" +
 		"  - name: {{ .User }}\n"
